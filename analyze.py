@@ -4,33 +4,35 @@ import numpy as np
 def filter_my_contours(image,contours):
     filtered_contours = []
     
-    ImageArea = image.shape[0] * image.shape[1]
     for i in contours:
-        
         area = cv2.contourArea(i)
-        print( area )
-        if (area >= 200) and (area <= 999):
+        if (area >= 2) and (area <= 500):
             filtered_contours.append(i)
             
     return filtered_contours
 
-for x in range(10, 20):
-    name = "./resources/%d.tif" % (x)
+for x in range(2, 20):
+    name  = "./resources/%d.tif" % (x)
+    image = cv2.imread(name)
+    image_orig = image.copy()
+    gray  = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    image    = cv2.imread(name)
+    ret , threshold = cv2.threshold(gray, 130, 255, cv2.THRESH_BINARY)
+    kernel = np.ones((3,3), np.uint8)
+    threshold = cv2.bitwise_not(threshold)
+    threshold = cv2.erode(threshold, kernel,iterations = 2)
     
-    blurred  = cv2.pyrMeanShiftFiltering(image,0,3)
-    gray     = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    
-    ret , threshold = cv2.threshold(gray,255, 255,cv2.THRESH_OTSU)
-    masked_image   = cv2.bitwise_and(image,image,mask = threshold)
-    
-    _,contours,_     = cv2.findContours(threshold, cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    _,contours,_     = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     filtered_contours = filter_my_contours(threshold, contours)
+        
+    title = "%d - sperm numbers %d" % (x, len(filtered_contours) )
     
-    title = "Number %d Image %d  " % (len(filtered_contours), x)
+    cv2.drawContours(image, filtered_contours, -1, (0, 200, 0), 2)
+    #cv2.imshow(title, image)
+    file_path = './output/'+ title
+    print(file_path) 
     
-    cv2.drawContours(image, filtered_contours, -1, (0,200,0), 2)
-    cv2.imshow(title, image)
-    
-cv2.waitKey(0)
+    cv2.imwrite(file_path + '.tif', image_orig)
+#     cv2.imwrite(file_path + '_gray.tif', gray)
+    cv2.imwrite(file_path + '_mark.tif', image)
+    cv2.imwrite(file_path + '_th.tif', threshold)
