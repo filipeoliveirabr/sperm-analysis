@@ -11,7 +11,7 @@ def filter_my_contours(image,contours):
             
     return filtered_contours
 
-for x in range(2, 20):
+for x in range(1, 19):
     name  = "./resources/%d.tif" % (x)
     image = cv2.imread(name)
     image_orig = image.copy()
@@ -28,7 +28,6 @@ for x in range(2, 20):
     title = "%d - sperm numbers %d" % (x, len(filtered_contours) )
     
     cv2.drawContours(image, filtered_contours, -1, (0, 200, 0), 2)
-    #cv2.imshow(title, image)
     file_path = './output/'+ title
     print(file_path) 
     
